@@ -130,6 +130,7 @@ impl<S: StateStore> CellBasedTable<S> {
         // TODO: use multi-get for cell_based get_row
         // TODO: encode vnode into key
         // let vnode = self.compute_vnode_by_row(pk);
+        println!("getting row by pk: {:#?}", pk);
         let serialized_pk = serialize_pk(pk, &self.pk_serializer);
 
         let sentinel_key =
