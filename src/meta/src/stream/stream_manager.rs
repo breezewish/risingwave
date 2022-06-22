@@ -59,6 +59,7 @@ pub struct CreateMaterializedViewContext {
     pub table_id_offset: u32,
     /// Internal TableID for MaterializedView.
     pub internal_table_id_set: HashSet<u32>,
+    pub table_properties: HashMap<String, String>,
 }
 
 /// `GlobalStreamManager` manages all the streams in the system.
@@ -273,6 +274,7 @@ where
             affiliated_source: _,
             table_id_offset: _,
             internal_table_id_set: _,
+            table_properties,
         }: CreateMaterializedViewContext,
     ) -> Result<()> {
         let nodes = self
@@ -550,7 +552,7 @@ where
 
         // Add table fragments to meta store with state: `State::Creating`.
         self.fragment_manager
-            .start_create_table_fragments(table_fragments.clone())
+            .start_create_table_fragments(table_fragments.clone(), table_properties)
             .await?;
 
         let table_id = table_fragments.table_id();

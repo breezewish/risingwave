@@ -287,7 +287,7 @@ where
 
         // 3. Create mview in stream manager. The id in stream node will be filled.
         if let Err(e) = self
-            .create_mview_on_compute_node(fragment_graph, id, None)
+            .create_mview_on_compute_node(fragment_graph, id, None, &mview)
             .await
         {
             self.catalog_manager
@@ -401,6 +401,7 @@ where
         mut fragment_graph: StreamFragmentGraph,
         id: TableId,
         affiliated_source: Option<Source>,
+        mview: &Table,
     ) -> RwResult<()> {
         use risingwave_common::catalog::TableId;
 
@@ -438,6 +439,7 @@ where
             .await;
         let mut ctx = CreateMaterializedViewContext {
             affiliated_source,
+            table_properties: mview.properties.clone(),
             ..Default::default()
         };
 
@@ -547,7 +549,7 @@ where
         // Create mview on compute node.
         // Noted that this progress relies on the source just created, so we pass it here.
         if let Err(e) = self
-            .create_mview_on_compute_node(fragment_graph, mview_id, Some(source.clone()))
+            .create_mview_on_compute_node(fragment_graph, mview_id, Some(source.clone()), &mview)
             .await
         {
             self.catalog_manager
