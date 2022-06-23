@@ -35,6 +35,7 @@
 #![feature(map_first_last)]
 #![feature(drain_filter)]
 #![feature(lint_reasons)]
+#![feature(slice_take)]
 #![cfg_attr(coverage, feature(no_coverage))]
 
 extern crate core;
@@ -103,6 +104,12 @@ pub struct MetaNodeOpts {
 
     #[clap(long, default_value = "10")]
     meta_leader_lease_secs: u64,
+
+    #[clap(long, default_value_t = u64::MAX)]
+    version_max_files_for_benchmark: u64,
+
+    #[clap(long, default_value = "0")]
+    sstable_info_size_for_benchmark: u64,
 }
 
 fn load_config(opts: &MetaNodeOpts) -> ComputeNodeConfig {
@@ -153,6 +160,8 @@ pub fn start(opts: MetaNodeOpts) -> Pin<Box<dyn Future<Output = ()> + Send>> {
             MetaOpts {
                 enable_recovery: !opts.disable_recovery,
                 checkpoint_interval,
+                version_max_files_for_benchmark: opts.version_max_files_for_benchmark,
+                sstable_info_size_for_benchmark: opts.sstable_info_size_for_benchmark,
             },
         )
         .await

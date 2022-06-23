@@ -60,8 +60,8 @@ where
     S: MetaStore,
 {
     vec![
-        start_compaction_scheduler(compaction_scheduler),
-        start_vacuum_scheduler(vacuum_trigger),
+        // start_compaction_scheduler(compaction_scheduler),
+        // start_vacuum_scheduler(vacuum_trigger),
         subscribe_cluster_membership_change(
             hummock_manager,
             compactor_manager,

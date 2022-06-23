@@ -24,6 +24,7 @@ use risingwave_common::util::epoch::INVALID_EPOCH;
 use risingwave_hummock_sdk::compact::compact_task_to_string;
 use risingwave_hummock_sdk::compaction_group::hummock_version_ext::HummockVersionExt;
 use risingwave_hummock_sdk::compaction_group::StaticCompactionGroupId;
+use risingwave_hummock_sdk::prost_key_range::KeyRangeExt;
 use risingwave_hummock_sdk::{
     get_remote_sst_id, CompactionGroupId, HummockCompactionTaskId, HummockContextId, HummockEpoch,
     HummockRefCount, HummockSSTableId, HummockVersionId, LocalSstableInfo,
@@ -31,8 +32,8 @@ use risingwave_hummock_sdk::{
 use risingwave_pb::hummock::hummock_version::Levels;
 use risingwave_pb::hummock::{
     CompactTask, CompactTaskAssignment, HummockPinnedSnapshot, HummockPinnedVersion,
-    HummockSnapshot, HummockStaleSstables, HummockVersion, Level, LevelType, SstableIdInfo,
-    SstableInfo,
+    HummockSnapshot, HummockStaleSstables, HummockVersion, KeyRange, Level, LevelType,
+    SstableIdInfo, SstableInfo,
 };
 use risingwave_pb::meta::subscribe_response::{Info, Operation};
 use risingwave_pb::meta::MetaLeaderInfo;
@@ -838,6 +839,30 @@ where
         let sstables = sstables.into_iter().map(|(_, sst)| sst).collect_vec();
 
         let mut versioning_guard = self.versioning.write().await;
+
+        // NOTE: These dirty hacks are to support benchmark. This is NOT part of production code.
+        assert!(
+            sstables.is_empty(),
+            "commit_epoch during benchmark won't carry sstables"
+        );
+        // Construct commit_epoch's payload from uncommitted sst ids
+        let table_ids_number = (self.env.opts.sstable_info_size_for_benchmark/4) as usize;
+        let sstables = versioning_guard
+            .sstable_id_infos
+            .values()
+            .filter(|sst| {
+                sst.meta_create_timestamp == INVALID_TIMESTAMP
+                    && sst.meta_delete_timestamp == INVALID_TIMESTAMP
+            })
+            .map(|id| SstableInfo {
+                id: id.id,
+                key_range: Some(KeyRange::inf()),
+                file_size: 1,
+                table_ids: vec![0; table_ids_number],
+                unit_id: 0,
+            })
+            .collect_vec();
+
         let old_version = versioning_guard.current_version();
         let versioning = versioning_guard.deref_mut();
         let mut current_version_id = VarTransaction::new(&mut versioning.current_version_id);
@@ -900,7 +925,19 @@ where
         );
         version_first_level.table_infos.extend(sstables);
         version_first_level.total_file_size += total_files_size;
+
+        // NOTE: These dirty hacks are to support benchmark. This is NOT part of production code.
+        // Truncate version size and sstable ids
+        let truncate = version_first_level
+            .table_infos
+            .len()
+            .saturating_sub(self.env.opts.version_max_files_for_benchmark as usize);
+        for t in version_first_level.table_infos.drain(..truncate) {
+            sstable_id_infos.remove(&t.id);
+        }
+
         new_hummock_version.max_committed_epoch = epoch;
+
         commit_multi_var!(
             self,
             None,

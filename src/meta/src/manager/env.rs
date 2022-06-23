@@ -65,6 +65,8 @@ where
 pub struct MetaOpts {
     pub enable_recovery: bool,
     pub checkpoint_interval: Duration,
+    pub version_max_files_for_benchmark: u64,
+    pub sstable_info_size_for_benchmark: u64,
 }
 
 impl Default for MetaOpts {
@@ -72,6 +74,8 @@ impl Default for MetaOpts {
         Self {
             enable_recovery: false,
             checkpoint_interval: Duration::from_millis(100),
+            version_max_files_for_benchmark: u64::MAX,
+            sstable_info_size_for_benchmark: 0,
         }
     }
 }
@@ -80,6 +84,8 @@ impl MetaOpts {
         Self {
             enable_recovery,
             checkpoint_interval: Duration::from_millis(checkpoint_interval),
+            version_max_files_for_benchmark: u64::MAX,
+            sstable_info_size_for_benchmark: 0,
         }
     }
 }
