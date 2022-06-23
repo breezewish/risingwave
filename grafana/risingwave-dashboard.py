@@ -775,30 +775,6 @@ def section_hummock_table_comparison(outer_panels):
                     "histogram_quantile(0.99, sum(irate(state_store_get_new_table_id_latency_bucket[1m])) by (le, job, instance))", "hummock_client_GetNewTableId_p99 - {{instance}} "
                 ),
             ]),
-            panels.timeseries_latency_small("add tables latency p50", [
-                panels.target(
-                    "histogram_quantile(0.5, sum(irate(meta_grpc_duration_seconds_bucket{path=\"/hummock.HummockManagerService/AddTables\"}[1m])) by (le))", "hummock_manager_ AddTables_p50"
-                ),
-                panels.target(
-                    "histogram_quantile(0.5, sum(irate(state_store_add_tables_latency_bucket[1m])) by (le, job, instance))", "hummock_client_ AddTables_p50 - {{instance}} "
-                ),
-            ]),
-            panels.timeseries_latency_small("add tables latency p90", [
-                panels.target(
-                    "histogram_quantile(0.9, sum(irate(meta_grpc_duration_seconds_bucket{path=\"/hummock.HummockManagerService/AddTables\"}[1m])) by (le))", "hummock_manager_ AddTables_p90"
-                ),
-                panels.target(
-                    "histogram_quantile(0.9, sum(irate(state_store_add_tables_latency_bucket[1m])) by (le, job, instance))", "hummock_client_ AddTables_p90 - {{instance}} "
-                ),
-            ]),
-            panels.timeseries_latency_small("add tables latency p99", [
-                panels.target(
-                    "histogram_quantile(0.99, sum(irate(meta_grpc_duration_seconds_bucket{path=\"/hummock.HummockManagerService/AddTables\"}[1m])) by (le))", "hummock_manager_ AddTables_p99"
-                ),
-                panels.target(
-                    "histogram_quantile(0.99, sum(irate(state_store_add_tables_latency_bucket[1m])) by (le, job, instance))", "hummock_client_ AddTables_p99 - {{instance}} "
-                ),
-            ]),
         ]),
     ]
 
@@ -1082,18 +1058,18 @@ def section_grpc_meta_hummock_manager(outer_panels):
                     "sum(irate(meta_grpc_duration_seconds_sum{path=\"/hummock.HummockManagerService/ReportCompactionTasks\"}[1m])) / sum(irate(meta_grpc_duration_seconds_count{path=\"/hummock.HummockManagerService/ReportCompactionTasks\"}[1m]))", "ReportCompactionTasks_avg"
                 ),
             ]),
-            panels.timeseries_latency_small("table latency", [
+            panels.timeseries_latency_small("commit latency", [
                 panels.target(
-                    "histogram_quantile(0.5, sum(irate(meta_grpc_duration_seconds_bucket{path=\"/hummock.HummockManagerService/AddTables\"}[1m])) by (le))", "AddTables_p50"
+                    "histogram_quantile(0.5, sum(irate(meta_grpc_duration_seconds_bucket{path=\"/hummock.HummockManagerService/CommitEpoch\"}[1m])) by (le))", "CommitEpoch_p50"
                 ),
                 panels.target(
-                    "histogram_quantile(0.9, sum(irate(meta_grpc_duration_seconds_bucket{path=\"/hummock.HummockManagerService/AddTables\"}[1m])) by (le))", "AddTables_p90"
+                    "histogram_quantile(0.9, sum(irate(meta_grpc_duration_seconds_bucket{path=\"/hummock.HummockManagerService/CommitEpoch\"}[1m])) by (le))", "CommitEpoch_p90"
                 ),
                 panels.target(
-                    "histogram_quantile(0.99, sum(irate(meta_grpc_duration_seconds_bucket{path=\"/hummock.HummockManagerService/AddTables\"}[1m])) by (le))", "AddTables_p99"
+                    "histogram_quantile(0.99, sum(irate(meta_grpc_duration_seconds_bucket{path=\"/hummock.HummockManagerService/CommitEpoch\"}[1m])) by (le))", "CommitEpoch_p99"
                 ),
                 panels.target(
-                    "sum(irate(meta_grpc_duration_seconds_sum{path=\"/hummock.HummockManagerService/AddTables\"}[1m])) / sum(irate(meta_grpc_duration_seconds_count{path=\"/hummock.HummockManagerService/AddTables\"}[1m]))", "AddTables_avg"
+                    "sum(irate(meta_grpc_duration_seconds_sum{path=\"/hummock.HummockManagerService/CommitEpoch\"}[1m])) / sum(irate(meta_grpc_duration_seconds_count{path=\"/hummock.HummockManagerService/CommitEpoch\"}[1m]))", "CommitEpoch_avg"
                 ),
                 panels.target(
                     "histogram_quantile(0.5, sum(irate(meta_grpc_duration_seconds_bucket{path=\"/hummock.HummockManagerService/GetNewTableId\"}[1m])) by (le))", "GetNewTableId_p50"
