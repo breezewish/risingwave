@@ -58,6 +58,8 @@ pub struct MetaNodeConfig {
 
     pub enable_dashboard_v2: bool,
     pub unsafe_disable_recovery: bool,
+    pub version_max_files_for_benchmark: u64,
+    pub sstable_info_size_for_benchmark: u64,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

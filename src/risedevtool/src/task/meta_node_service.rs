@@ -50,7 +50,11 @@ impl MetaNodeService {
             .arg(format!(
                 "{}:{}",
                 config.listen_address, config.dashboard_port
-            ));
+            ))
+            .arg("--version-max-files-for-benchmark")
+            .arg(format!("{}", config.version_max_files_for_benchmark))
+            .arg("--sstable-info-size-for-benchmark")
+            .arg(format!("{}", config.sstable_info_size_for_benchmark));
 
         cmd.arg("--prometheus-host").arg(format!(
             "{}:{}",
